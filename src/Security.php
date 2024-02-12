@@ -497,4 +497,57 @@ class Security extends AbstractEntry
         
         return $data;
     }
+
+
+    /**
+     * @param $dates
+     * @return mixed
+     * @throws \Exception
+     */
+    public function convertDates($dates): mixed
+    {
+        for ($i = 0; $i <= count($dates); $i ++) {
+            if (isset($dates[$i])) {
+                $date = $dates[$i];
+
+                $this->validateDate($date);
+
+                if (is_string($date)) {
+                    $timezone = new \DateTimeZone(Client::TIMEZONE);
+                    $dates[$i] = new \DateTime($date, $timezone);
+                }
+            }
+        }
+
+        return $dates;
+    }
+
+    /**
+     * @param $from
+     * @param $to
+     * @param int $interval
+     * @param false $reverse
+     * @param int $limit
+     * @return array|string|void
+     * @throws \Exception
+     */
+    public function getCandles(string $from, string $to, int $interval = 10, bool $reverse = false, int $limit = 500) {
+        list($from, $to) = $this->convertDates([$from, $to]);
+        $engine = $this->getEngine();
+        $market = $this->getMarket();
+        $candlesData = Client::getInstance()->getCandles(
+            $engine->getId(),
+            $market->getId(),
+            $this->getId(),
+            $from,
+            $to,
+            $interval,
+            $reverse,
+            0,
+            $limit
+        );
+
+        return $candlesData;
+
+    }
 }

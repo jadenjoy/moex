@@ -652,4 +652,35 @@ class Client
         $uri = 'statistics/engines/currency/markets/selt/rates';
         return $this->getData($uri);
     }
+
+    /**
+     * @param string $engine
+     * @param string $market
+     * @param string $security_code
+     * @param $from
+     * @param $to
+     * @param $interval
+     * @param $reverse
+     * @param int $start
+     * @param int $limit
+     * @return array|string|void
+     */
+    public function getCandles(string $engine, string $market, string $security_code, $from, $to, int $interval, bool $reverse, int $start = 0, int $limit = 500)
+    {
+        $uri = 'engines/%s/markets/%s/securities/%s/candles';
+        $uri = sprintf($uri, $engine, $market, $security_code);
+        $params = array(
+            'start' => $start,
+            'limit' => $limit,
+            'iss.reverse' => $reverse,
+            'interval'=> $interval
+        );
+        if ($from) {
+            $params['from'] = $from->format(self::DATE_FORMAT);
+        }
+        if ($to) {
+            $params['till'] = $to->format(self::DATE_FORMAT);
+        }
+        return $this->fetchAllPages($uri, 'candles', $params);
+    }
 }
